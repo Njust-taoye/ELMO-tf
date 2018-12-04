@@ -19,6 +19,7 @@ parser.add_argument("--filter_sizes", nargs='+', type=int, default=None)
 
 parser.add_argument("--elmo_hidden", type=int, default=128)
 parser.add_argument("--steps_per_epoch", type=int, default=128)
+parser.add_argument("--softmax_sample_size", type=int, default=100)
 
 args = parser.parse_args()
 

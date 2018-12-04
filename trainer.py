@@ -17,8 +17,7 @@ class ELMOTrainer:
         self.train_global_steps = tf.Variable(0)
 
         self.train_iter, self.train_batch = self.input_data(self.train_dataset)
-        self.train_loss, self.train_ops, self.train_output \
-            = self.elmo.train(self.train_batch, global_step_variable=self.train_global_steps)
+        self.train_loss, self.train_ops = self.elmo.train(self.train_batch, self.train_global_steps)
 
         # init ELMO variables & session
         self.sess = tf.Session()
@@ -30,14 +29,15 @@ class ELMOTrainer:
 
             for step in range(self.config["steps_per_epoch"]):
                 try:
-                    _, loss, output = self.sess.run([self.train_loss, self.train_ops, self.train_output])
-                    if verbose and step % self.config["verbose_freq"]:
-                        self.train_logging(epoch, step, loss, output)
+                    loss, _ = self.sess.run([self.train_loss, self.train_ops])
 
-                except tf.errors.OUT_OF_RANGE:
+                    if verbose and step % self.config["verbose_freq"] == 0:
+                        self.train_logging(epoch, step, loss)
+
+                except tf.errors.OutOfRangeError:
                     break
 
-    def train_logging(self, epoch, step, loss, output):
+    def train_logging(self, epoch, step, loss):
         print("Train EP:%d [%d/%d] loss: %f" % (epoch, step, self.config["steps_per_epoch"], loss.item()))
 
     def eval(self):

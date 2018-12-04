@@ -26,7 +26,7 @@ class ElmoKoreanDataset:
         return char_idx_seq, seq_len
 
     def text_to_word_sequence(self, text):
-        word_idx_seq, seq_len = self.word_vocab.to_seq(text, seq_len=self.seq_len+1, with_len=True)
+        word_idx_seq, seq_len = self.word_vocab.to_seq(text, seq_len=self.seq_len+1, with_len=True, with_eos=True)
         seq_len = self.seq_len + 1 if seq_len > self.seq_len + 1 else seq_len
         word_idx_seq, seq_len = word_idx_seq[1:], seq_len - 1
         return word_idx_seq, seq_len
