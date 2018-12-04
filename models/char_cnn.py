@@ -7,7 +7,7 @@ class CharCNNEmbedding:
         self.char_embedding_dim = config["char_embedding_dim"]
 
         self.kernel_sizes = config["kernel_sizes"]
-        self.filter_size = self.char_embedding_dim // len(self.kernel_sizes)
+        self.filter_size = config["elmo_hidden"] // len(self.kernel_sizes)
 
         self.seq_len = config["word_seq_len"]
         self.char_seq_len = config["char_seq_len"]
@@ -29,9 +29,9 @@ class CharCNNEmbedding:
         conv_input = tf.reshape(embed_input, [-1, self.char_seq_len, self.char_embedding_dim])
         for conv, kernel_size in zip(self.conv_filters, self.kernel_sizes):
             conv_output = conv(conv_input)
-            conv_output = tf.reshape(conv_output, [-1, self.seq_len, self.seq_len - kernel_size + 1, self.filter_size])
+            _conv_output = tf.reshape(conv_output, [-1, self.seq_len, conv_output.shape[1], self.filter_size])
 
-            pool_output = tf.nn.max_pool(conv_output, [1, 1, self.seq_len - kernel_size + 1, 1], [1, 1, 1, 1], 'VALID')
+            pool_output = tf.nn.max_pool(_conv_output, [1, 1, conv_output.shape[1], 1], [1, 1, 1, 1], 'VALID')
             pool_output = tf.squeeze(pool_output, axis=2)
             conv_outputs.append(pool_output)
 

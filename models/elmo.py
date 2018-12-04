@@ -69,7 +69,7 @@ class ELMO:
 
         forward_train_loss = tf.reshape(forward_train_loss, [-1, self.seq_len])
         forward_train_loss = tf.multiply(forward_train_loss, forward_padding)
-        forward_train_loss = tf.reduce_sum(forward_train_loss)
+        forward_train_loss = tf.reduce_mean(forward_train_loss)
 
         backward_target = tf.reverse_sequence(data["target"], data["target_len"], seq_axis=1, batch_axis=0)
         backward_pred = tf.cast(tf.argmax(tf.nn.softmax(backward_output, -1), -1), tf.int32)
@@ -87,7 +87,7 @@ class ELMO:
 
         backward_train_loss = tf.reshape(backward_train_loss, [-1, self.seq_len])
         backward_train_loss = tf.multiply(backward_train_loss, backward_padding)
-        backward_train_loss = tf.reduce_sum(backward_train_loss)
+        backward_train_loss = tf.reduce_mean(backward_train_loss)
 
         train_loss = forward_train_loss + backward_train_loss
         train_correct = tf.concat([forward_correct, backward_correct], axis=-1)
@@ -96,8 +96,8 @@ class ELMO:
         tf.summary.scalar("train_acc", train_acc)
         tf.summary.scalar("train_loss", train_loss)
 
-        train_ops = tf.train.AdamOptimizer().minimize(train_loss, global_step=global_step_variable)
-        return train_loss, train_ops
+        train_ops = tf.train.AdamOptimizer().minimize(train_loss)
+        return train_loss, train_acc, train_ops
 
     def pred(self, data):
         elmo_projection_output = self.forward(data)

@@ -12,6 +12,8 @@ class ElmoKoreanDataset:
 
         self.seq_len = config["word_seq_len"]
         self.char_seq_len = config["char_seq_len"]
+        self.corpus_size = self.get_corpus_size()
+        print("Dataset Size:", self.corpus_size)
 
         config["char_vocab_size"] = len(self.char_vocab)
         config["word_vocab_size"] = len(self.word_vocab)
@@ -26,7 +28,7 @@ class ElmoKoreanDataset:
         return char_idx_seq, seq_len
 
     def text_to_word_sequence(self, text):
-        word_idx_seq, seq_len = self.word_vocab.to_seq(text, seq_len=self.seq_len+1, with_len=True, with_eos=True)
+        word_idx_seq, seq_len = self.word_vocab.to_seq(text, seq_len=self.seq_len + 1, with_len=True, with_eos=True)
         seq_len = self.seq_len + 1 if seq_len > self.seq_len + 1 else seq_len
         word_idx_seq, seq_len = word_idx_seq[1:], seq_len - 1
         return word_idx_seq, seq_len
@@ -44,3 +46,10 @@ class ElmoKoreanDataset:
             with open(file_path, "r", encoding="utf-8") as f:
                 for text in f:
                     yield self.produce_data(text)
+
+    def get_corpus_size(self):
+        count = 0
+        for file_path in self.corpus_files:
+            with open(file_path) as file:
+                count += sum(1 for _ in file)
+        return count
